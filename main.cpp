@@ -3,6 +3,7 @@
 #include <string>
 #include <functional>
 #include <optional>
+#include <list>
 
 using namespace std;
 
@@ -16,7 +17,7 @@ public:
 
     auto get_hash_code(const K &key)
     {
-        if(key == 2) {
+        if(key == 21) {
             //cout << "key is 2\n";
             return (unsigned long) 3;
         }
@@ -66,6 +67,59 @@ private:
     size_t count_;
 };
 
+
+
+template<class K, class V>
+class LinerProbing {
+public:
+    explicit LinerProbing(size_t size
+    ) : size_(size), cont_(10, list<pair<K,V>>()) {
+
+    }
+
+
+    auto get_hash_code(const K &key)
+    {
+       return 1;
+
+        //return hash<K>{}(key) % size_;;
+    }
+
+    bool put(const K &key, const V &value) {
+        size_t hash_value = get_hash_code(key);
+        cout << "hash value for " << key << " is value " << hash_value << "\n";
+
+        for (auto& node: cont_[hash_value]) {
+
+            if (node.first == key) {
+                node.second = value;
+                return true;
+            }
+        }
+
+        cont_[hash_value].push_back(make_pair(key, value));
+        return true;
+    }
+
+    const V& get(const K& key)
+    {
+        size_t hash_value = get_hash_code(key);
+
+        for (auto& node: cont_[hash_value]) {
+
+            if (node.first == key) {;
+                return node.second;
+            }
+        }
+
+        throw out_of_range("Key not in Hash map");
+    }
+private:
+    size_t size_;
+
+    vector<list<pair<K, V>>> cont_;
+};
+
 int main() {
     std::cout << "Hello, World!" << std::endl;
 
@@ -87,5 +141,18 @@ int main() {
     }
     //hash_map.get(11);
 
+    cout << "\nLinear probing starts\n";
+    LinerProbing<int, int> hash_map2(10);
+    for(int i = 0; i < 10; ++i) {
+        hash_map2.put(i, 10*10*i);
+    }
+    for(int i = 0; i < 10; ++i) {
+        cout  << " " << hash_map2.get(i);
+    }
+    cout << "\n";
+    hash_map2.put(5, 0);
+    for(int i = 0; i < 10; ++i) {
+        cout  << " " << hash_map2.get(i);
+    }
     return 0;
 }
